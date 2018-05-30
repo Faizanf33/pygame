@@ -5,10 +5,10 @@ import time
 import random
 logging.info("initiating pygame")    
 pygame.init()
-logging.info("setting the width and height of display")
-display_width = 1000
-display_height = 800
-logging.info("setting the colour of display")
+logging.debug("setting the width and height of display")
+display_width = 800
+display_height = 550
+logging.debug("setting the colour of display")
 black = (0, 0, 0)
 white = (255, 255,255)
 block_color = ( 53, 115, 255)
@@ -17,13 +17,13 @@ car_width = 73
 car_height = 73
 logging.info("initializing the display")
 gameDisplay = pygame.display.set_mode((display_width, display_height))    #Displays(width,length)
-logging.info("setting the caption of the display")
+logging.debug("setting the caption of the display")
 pygame.display.set_caption('A bit racey')
-logging.info("setting the clock")
+logging.debug("setting the clock")
 clock = pygame.time.Clock()
-logging.info("uploading the image of car")
+logging.debug("uploading the image of car")
 carImg = pygame.image.load("racecar.png")  ##uploading image
-logging.info("defining a function of car")
+logging.debug("defining a function of car")
 
 def things(thingx, thingy,thingw, thingh, color):
 	pygame.draw.rect(gameDisplay, color, [thingx, thingy,thingw, thingh])
@@ -55,11 +55,10 @@ def crash():
 
 
 
-
 logging.info("starting game loop")
 def game_loop():
 
-	logging.info("setting the position of the car")
+	logging.debug("setting the position of the car")
 	x = (display_width * 0.45)
 	y = (display_height * 0.8)
 	x_change = 0
@@ -146,5 +145,5 @@ logging.info("calling the game loop")
 game_loop()
 logging.info("calling the quit function")
 pygame.quit()
-logging.info("I am the last line of the code")
+logging.debug("I am the last line of the code")
 quit()
