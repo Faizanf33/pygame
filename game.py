@@ -1,149 +1,236 @@
-import logging
-logging.basicConfig(level=logging.DEBUG)
 import pygame
 import time
 import random
-logging.info("initiating pygame")    
+ 
 pygame.init()
-logging.debug("setting the width and height of display")
+
+#############
+crash_sound = pygame.mixer.Sound("crash.wav")
+#############
+ 
 display_width = 800
-display_height = 550
-logging.debug("setting the colour of display")
-black = (0, 0, 0)
-white = (255, 255,255)
-block_color = ( 53, 115, 255)
+display_height = 600
+ 
+black = (0,0,0)
+white = (255,255,255)
 
+red = (200,0,0)
+green = (0,200,0)
+
+bright_red = (255,0,0)
+bright_green = (0,255,0)
+ 
+block_color = (53,115,255)
+ 
 car_width = 73
-car_height = 73
-logging.info("initializing the display")
-gameDisplay = pygame.display.set_mode((display_width, display_height))    #Displays(width,length)
-logging.debug("setting the caption of the display")
-pygame.display.set_caption('A bit racey')
-logging.debug("setting the clock")
+
+gameDisplay = pygame.display.set_mode((display_width, display_height), pygame.FULLSCREEN)
+pygame.display.set_caption('A bit Racey')
 clock = pygame.time.Clock()
-logging.debug("uploading the image of car")
-carImg = pygame.image.load("racecar.png")  ##uploading image
-logging.debug("defining a function of car")
+ 
+carImg = pygame.image.load('racecar.png')
+gameIcon = pygame.image.load('racecar.png')
 
-def things(thingx, thingy,thingw, thingh, color):
-	pygame.draw.rect(gameDisplay, color, [thingx, thingy,thingw, thingh])
+pygame.display.set_icon(gameIcon)
 
+pause = False
+#crash = True
+ 
 def things_dodged(count):
-	font = pygame.font.SysFont(None, 25)
-	text = font.render("dodged" + str(count), True, black)
-	gameDisplay.blit(text,(0,0))
-
+    font = pygame.font.SysFont("comicsansms", 25)
+    text = font.render("Dodged: "+str(count), True, black)
+    gameDisplay.blit(text,(0,0))
+ 
+def things(thingx, thingy, thingw, thingh, color):
+    pygame.draw.rect(gameDisplay, color, [thingx, thingy, thingw, thingh])
+ 
 def car(x,y):
-	
-	gameDisplay.blit(carImg,(x,y))
-
+    gameDisplay.blit(carImg,(x,y))
+ 
 def text_objects(text, font):
-	textSurface = font.render(text, True, black)
-	return textSurface, textSurface.get_rect()
-def message_display(text):
-	largeText = pygame.font.Font("freesansbold.ttf", 115)#font type and size
-	TextSurf, TextRect = text_objects(text, largeText)
-	TextRect.center = ((display_width/2), (display_height/2))
-	gameDisplay.blit(TextSurf, TextRect)
-	pygame.display.update()
-
-	time.sleep(2)
-	game_loop()
-
+    textSurface = font.render(text, True, black)
+    return textSurface, textSurface.get_rect()
+ 
+ 
 def crash():
-	message_display("You Crashed")
+    ####################################
+    pygame.mixer.Sound.play(crash_sound)
+    pygame.mixer.music.stop()
+    ####################################
+    largeText = pygame.font.SysFont("comicsansms",115)
+    TextSurf, TextRect = text_objects("You Crashed!", largeText)
+    TextRect.center = ((display_width/2),(display_height/2))
+    gameDisplay.blit(TextSurf, TextRect)
+    
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+                
+        
+
+        button("Play Again",150,450,100,50,green,bright_green,game_loop)
+        button("Quit",550,450,100,50,red,bright_red,quitgame)
+
+        pygame.display.update()
+        clock.tick(15) 
+
+def button(msg,x,y,w,h,ic,ac,action=None):
+    mouse = pygame.mouse.get_pos()
+    click = pygame.mouse.get_pressed()
+
+    if x+w > mouse[0] > x and y+h > mouse[1] > y:
+        pygame.draw.rect(gameDisplay, ac,(x,y,w,h))
+        if click[0] == 1 and action != None:
+            action()         
+    else:
+        pygame.draw.rect(gameDisplay, ic,(x,y,w,h))
+    smallText = pygame.font.SysFont("comicsansms",20)
+    textSurf, textRect = text_objects(msg, smallText)
+    textRect.center = ( (x+(w/2)), (y+(h/2)) )
+    gameDisplay.blit(textSurf, textRect)
+    
+
+def quitgame():
+    pygame.quit()
+    quit()
+
+def unpause():
+    global pause
+    pygame.mixer.music.unpause()
+    pause = False
+    
+
+def paused():
+    ############
+    pygame.mixer.music.pause()
+    #############
+    largeText = pygame.font.SysFont("comicsansms",115)
+    TextSurf, TextRect = text_objects("Paused", largeText)
+    TextRect.center = ((display_width/2),(display_height/2))
+    gameDisplay.blit(TextSurf, TextRect)
+    
+
+    while pause:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
 
 
+        button("Continue",150,450,100,50,green,bright_green,unpause)
+        button("Quit",550,450,100,50,red,bright_red,quitgame)
 
-logging.info("starting game loop")
+        pygame.display.update()
+        clock.tick(15)   
+
+
+def game_intro():
+
+    intro = True
+
+    while intro:
+        for event in pygame.event.get():
+            #print(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+                
+        gameDisplay.fill(white)
+        largeText = pygame.font.SysFont("comicsansms",115)
+        TextSurf, TextRect = text_objects("A BIT RACEY", largeText)
+        TextRect.center = ((display_width/2),(display_height/2))
+        gameDisplay.blit(TextSurf, TextRect)
+
+        button("Play!",150,450,100,50,green,bright_green,game_loop)
+        button("Quit",550,450,100,50,red,bright_red,quitgame)
+
+        pygame.display.update()
+        clock.tick(15)
+        
+        
+    
+    
+
+    
 def game_loop():
+    global pause
+    ############
+    pygame.mixer.music.load('jazz.mp3')
+    pygame.mixer.music.play(-1)
+    ############
+    x = (display_width * 0.45)
+    y = (display_height * 0.8)
+ 
+    x_change = 0
+ 
+    thing_startx = random.randrange(0, display_width)
+    thing_starty = -600
+    thing_speed = 4
+    thing_width = 100
+    thing_height = 100
+ 
+    thingCount = 1
+ 
+    dodged = 0
+ 
+    gameExit = False
+ 
+    while not gameExit:
+ 
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+ 
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    x_change = -5
+                if event.key == pygame.K_RIGHT:
+                    x_change = 5
+                if event.key == pygame.K_p:
+                    pause = True
+                    paused()
+                    
+ 
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    x_change = 0
+ 
+        x += x_change
+        gameDisplay.fill(white)
+ 
+        things(thing_startx, thing_starty, thing_width, thing_height, block_color)
+ 
+ 
+        
+        thing_starty += thing_speed
+        car(x,y)
+        things_dodged(dodged)
+ 
+        if x > display_width - car_width or x < 0:
+            crash()
+ 
+        if thing_starty > display_height:
+            thing_starty = 0 - thing_height
+            thing_startx = random.randrange(0,display_width)
+            dodged += 1
+            thing_speed += 1
+            thing_width += (dodged * 1.2)
+ 
+        if y < thing_starty+thing_height:
+            print('y crossover')
+ 
+            if x > thing_startx and x < thing_startx + thing_width or x+car_width > thing_startx and x + car_width < thing_startx+thing_width:
+                print('x crossover')
+                crash()
+        
+        pygame.display.update()
+        clock.tick(60)
 
-	logging.debug("setting the position of the car")
-	x = (display_width * 0.45)
-	y = (display_height * 0.8)
-	x_change = 0
-	y_change = 0
-	
-	thing_startx = random.randrange(0, display_width)
-	thing_starty = -600 # so that it apears a little slower
-	thing_speed = 10
-	thing_width = 100
-	thing_height = 100 #pixels
-	dodged = 0
-
-	
-	gameExit = False
-	logging.info("while not gameExit")
-	while not gameExit:
-	###########event handling loop###########
-		#logging.info("starting event handling loop")
-		for event in pygame.event.get():    #it gets any event that happens...movenment of mouse or clicking etc
-			if event.type == pygame.QUIT:   # when we will click X it will quit the window
-				logging.info("X is pressed")
-				pygame.quit()
-				quit()
-
-
-
-	################This event will handle situation when ever any key will be pressed UP##################################
-			if event.type == pygame.KEYDOWN:
-				if event.key == pygame.K_LEFT:#pressing left arrow will decrease x-axis coordinate
-					logging.info("left arrow is pressed down")
-					x_change = -7
-				if event.key == pygame.K_RIGHT:#pressing right arrow will increase x-axis coordinate
-					logging.info("Right arrow is pressed down")
-					x_change = 7
-				if event.key == pygame.K_UP:#pressing UP arrow will decrease Y-axis coordinate
-					logging.info("Up arrow is pressed down")
-					y_change = -7
-				if event.key == pygame.K_DOWN:#pressing Down arrow will increase x-axis coordinate
-					logging.info("Down arrow is pressed down")
-					y_change = 7
-	################This event will handle situation when ever any key will be pressed UP##################################
-			if event.type == pygame.KEYUP:
-				if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-					logging.info("left or right arrow is pressed up")
-					x_change = 0
-				if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-					logging.info("up or down arrow is pressed up")
-					y_change = 0
-		#logging.info("updating the value of x")
-		x += x_change
-		#logging.info("updating the value of y")
-		y += y_change
-		#logging.info("making the back display white")
-		gameDisplay.fill(white)
-
-
-		#things(thingx, thingy,thingw thingh, color)
-		things(thing_startx, thing_starty, thing_width, thing_height, block_color)
-		thing_starty += thing_speed
-		#logging.info("calling the function of car")
-		car(x,y)
-		things_dodged(dodged)
-
-		if x > display_width - car_width or x < 0:
-			logging.info("quiting the game beacause the car has hit the walls")
-			crash()
-		if y > display_height - car_height or y < 0:
-			logging.info("quiting the game beacause the car has hit the walls")
-			crash()
-		if thing_starty > display_height:
-			thing_starty = 0 - thing_height
-			thing_startx = random.randrange(0, display_width)
-			dodged += 1
-			thing_speed += 0.5
-			thing_width += (dodged * 1.2)
-
-		if y < thing_starty + thing_height:
-			
-			if x>thing_startx and x<thing_startx+thing_width or x+car_width>thing_startx and x+car_width<thing_startx+thing_width:
-				crash()
-		pygame.display.update()
-		clock.tick(60)  ## it will just make thing move faster
-logging.info("calling the game loop")
+game_intro()
 game_loop()
-logging.info("calling the quit function")
 pygame.quit()
-logging.debug("I am the last line of the code")
 quit()
